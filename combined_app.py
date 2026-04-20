@@ -199,11 +199,12 @@ def get_gemini_insights(prediction, params, strength_type):
     api_key = os.environ.get("GEMINI_API_KEY")
     prompt = f"Act as an expert in 3D printing and materials science. I have printed a composite material with the following parameters: " \
              f"Orientation: {params['orientation']}, Infill Pattern: {params['infill_pattern']}, " \
-             f"Layer Thickness: {params['layer_thick']}mm, Infill Density: {params['infill_density']}%, " \
-             f"MWCNT: {params['mwcnt']}%, Graphene: {params['graphene']}%. " \
+             f"Layer Thickness: {params['layer_thick']} mm, Infill Density: {params['infill_density']} %, " \
+             f"MWCNT: {params['mwcnt']} %, Graphene: {params['graphene']} %. " \
              f"This resulted in a predicted {strength_type} strength of {prediction:.2f} MPa. " \
-             f"Based on these parameters, provide a brief (3-4 sentences max) scientific insight " \
-             f"into why it achieved this strength and what microscopic mechanics might be at play."
+             f"Based on these parameters, provide point-wise reasoning (3-4 concise points) explaining why it achieved this strength " \
+             f"and what microscopic mechanics might be at play. " \
+             f"CRITICAL: Always include appropriate units (e.g., mm, %, MPa) immediately after any numerical values in your response."
              
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
     headers = {'Content-Type': 'application/json'}
@@ -216,9 +217,31 @@ def get_gemini_insights(prediction, params, strength_type):
         if response.status_code == 200:
             return response.json()['candidates'][0]['content']['parts'][0]['text']
         else:
-            return f"Error connecting to Gemini AI: {response.text}"
+            raise Exception(f"Gemini API Error: {response.text}")
     except Exception as e:
-        return f"Error: {e}"
+        # Fallback to Grok/Groq API
+        fallback_key = os.environ.get("GROK_API_KEY")
+        if not fallback_key:
+            return f"Error connecting to Gemini AI: {e} (No fallback key available)"
+        
+        try:
+            fallback_url = "https://api.groq.com/openai/v1/chat/completions"
+            fallback_headers = {
+                "Authorization": f"Bearer {fallback_key}",
+                "Content-Type": "application/json"
+            }
+            fallback_data = {
+                "model": "openai/gpt-oss-120b",
+                "messages": [{"role": "user", "content": prompt}]
+            }
+            fb_response = requests.post(fallback_url, headers=fallback_headers, json=fallback_data)
+            
+            if fb_response.status_code == 200:
+                return fb_response.json()['choices'][0]['message']['content']
+            else:
+                return f"Gemini Error: {e}\nFallback API Error: {fb_response.text}"
+        except Exception as fb_e:
+            return f"Gemini Error: {e}\nFallback API Exception: {fb_e}"
 
 def find_optimal_conditions(model, encoder, scaler, scaler_y, train_df, target_col):
     """Find parameters yielding the highest predicted strength"""
