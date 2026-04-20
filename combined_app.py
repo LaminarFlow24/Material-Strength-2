@@ -261,8 +261,14 @@ def find_optimal_conditions(model, encoder, scaler, scaler_y, train_df, target_c
                         for g in graphenes:
                             if m > 1.5 or g > 1.5:
                                 continue # Individual nanocomposite constraint
-                            data.append({'orientation': o, 'infill_pattern': i, 'layer_thick': l, 
-                                        'infill_density': ind, 'mwcnt': m, 'graphene': g})
+                            data.append({
+                                'orientation': str(o), 
+                                'infill_pattern': str(i), 
+                                'layer_thick': float(l), 
+                                'infill_density': float(ind), 
+                                'mwcnt': float(m), 
+                                'graphene': float(g)
+                            })
     
     if not data:
         return None, None
