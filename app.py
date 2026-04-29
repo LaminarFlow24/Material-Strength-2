@@ -4,38 +4,22 @@ import numpy as np
 import pickle
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-@st.cache(allow_output_mutation=True)
+@st.cache_data
 def load_model_and_preprocessors():
-    # Load your saved model (adjust the path if needed)
+    # Load the saved model
     with open('Models/Tens_orientation.pkl', 'rb') as file:
         model = pickle.load(file)
     
-    # Load training data to re-fit preprocessors and extract ranges
+    # Load training data for UI ranges
     df = pd.read_csv("train1.csv")
     
-    # Fit OneHotEncoder on the categorical features
-    encoder = OneHotEncoder()
-    encoder.fit(df[['orientation', 'infill_pattern']])
-    
-    # Create a combined DataFrame (mimicking training) for scaler fitting
-    df_encoded = encoder.transform(df[['orientation','infill_pattern']])
-    odf = pd.DataFrame.sparse.from_spmatrix(df_encoded)
-    
-    # Define numeric columns used during training (including the target)
-    numeric_cols = ['layer_thick', 'infill_density', 'mwcnt', 'graphene', 'tensile_str']
-    idf = df[numeric_cols]
-    
-    # Combine the one-hot encoded columns with numeric columns
-    cdf = pd.concat([odf, idf], axis=1)
-    cdf.columns = cdf.columns.astype(str)
-    
-    # Fit the scaler on the entire DataFrame (including target)
-    scaler = StandardScaler()
-    scaler.fit(cdf)
-    
-    # Fit a separate scaler for the target so we can inverse-transform predictions
-    scaler_y = StandardScaler()
-    scaler_y.fit(df[['tensile_str']])
+    # Load saved preprocessors (must match the training environment)
+    with open('Models/Tens_encoder.pkl', 'rb') as file:
+        encoder = pickle.load(file)
+    with open('Models/Tens_scaler.pkl', 'rb') as file:
+        scaler = pickle.load(file)
+    with open('Models/Tens_scaler_y.pkl', 'rb') as file:
+        scaler_y = pickle.load(file)
     
     return model, encoder, scaler, scaler_y, df
 

@@ -204,6 +204,14 @@ mean
 with open('/content/drive/MyDrive/Material/Models/Tens_orientation.pkl', 'wb') as file:
     pickle.dump(bes_reg, file)
 
+# Save preprocessors so the prediction app uses the exact same objects
+with open('/content/drive/MyDrive/Material/Models/Tens_encoder.pkl', 'wb') as file:
+    pickle.dump(encoder, file)
+with open('/content/drive/MyDrive/Material/Models/Tens_scaler.pkl', 'wb') as file:
+    pickle.dump(scaler, file)
+with open('/content/drive/MyDrive/Material/Models/Tens_scaler_y.pkl', 'wb') as file:
+    pickle.dump(scaler_y, file)
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -472,3 +480,11 @@ mean
 
 with open('/content/drive/MyDrive/Material/Models/Flex_orientation.pkl', 'wb') as file:
     pickle.dump(bes_reg1, file)
+
+# Save preprocessors so the prediction app uses the exact same objects
+with open('/content/drive/MyDrive/Material/Models/Flex_encoder.pkl', 'wb') as file:
+    pickle.dump(encoder1, file)
+with open('/content/drive/MyDrive/Material/Models/Flex_scaler.pkl', 'wb') as file:
+    pickle.dump(scaler1, file)
+with open('/content/drive/MyDrive/Material/Models/Flex_scaler_y.pkl', 'wb') as file:
+    pickle.dump(scaler_y1, file)

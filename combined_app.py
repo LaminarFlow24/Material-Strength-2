@@ -28,23 +28,13 @@ def load_tensile_model_and_preprocessors():
         
         df = pd.read_csv("train1.csv")
         
-        encoder = OneHotEncoder()
-        encoder.fit(df[['orientation', 'infill_pattern']])
-        
-        df_encoded = encoder.transform(df[['orientation','infill_pattern']])
-        odf = pd.DataFrame.sparse.from_spmatrix(df_encoded)
-        
-        numeric_cols = ['layer_thick', 'infill_density', 'mwcnt', 'graphene', 'tensile_str']
-        idf = df[numeric_cols]
-        
-        cdf = pd.concat([odf, idf], axis=1)
-        cdf.columns = cdf.columns.astype(str)
-        
-        scaler = StandardScaler()
-        scaler.fit(cdf)
-        
-        scaler_y = StandardScaler()
-        scaler_y.fit(df[['tensile_str']])
+        # Load saved preprocessors (must match the training environment)
+        with open('Models/Tens_encoder.pkl', 'rb') as file:
+            encoder = pickle.load(file)
+        with open('Models/Tens_scaler.pkl', 'rb') as file:
+            scaler = pickle.load(file)
+        with open('Models/Tens_scaler_y.pkl', 'rb') as file:
+            scaler_y = pickle.load(file)
         
         return model, encoder, scaler, scaler_y, df
     except Exception as e:
@@ -60,23 +50,13 @@ def load_flexural_model_and_preprocessors():
         
         df = pd.read_csv("train1.csv")
         
-        encoder = OneHotEncoder()
-        encoder.fit(df[['orientation', 'infill_pattern']])
-        
-        df_encoded = encoder.transform(df[['orientation','infill_pattern']])
-        odf = pd.DataFrame.sparse.from_spmatrix(df_encoded)
-        
-        numeric_cols = ['layer_thick', 'infill_density', 'mwcnt', 'graphene', 'flexural_str']
-        idf = df[numeric_cols]
-        
-        cdf = pd.concat([odf, idf], axis=1)
-        cdf.columns = cdf.columns.astype(str)
-        
-        scaler = StandardScaler()
-        scaler.fit(cdf)
-        
-        scaler_y = StandardScaler()
-        scaler_y.fit(df[['flexural_str']])
+        # Load saved preprocessors (must match the training environment)
+        with open('Models/Flex_encoder.pkl', 'rb') as file:
+            encoder = pickle.load(file)
+        with open('Models/Flex_scaler.pkl', 'rb') as file:
+            scaler = pickle.load(file)
+        with open('Models/Flex_scaler_y.pkl', 'rb') as file:
+            scaler_y = pickle.load(file)
         
         return model, encoder, scaler, scaler_y, df
     except Exception as e:
